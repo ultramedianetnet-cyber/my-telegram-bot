@@ -87,6 +87,15 @@ CREATE TABLE IF NOT EXISTS ads(
     group_id INTEGER,
     created_at INTEGER
 );
+CREATE TABLE IF NOT EXISTS user_activity(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    action TEXT NOT NULL,
+    description TEXT NOT NULL,
+    category TEXT NOT NULL,
+    event_type TEXT NOT NULL,
+    occurred_at INTEGER NOT NULL
+);
 """
 
 # Eski bazalarga kerakli ustunlarni qo'shish
@@ -95,6 +104,9 @@ MIGRATIONS = [
     ("tests", "opts TEXT DEFAULT 'ABCD'"),
     ("test_questions", "file_id TEXT"),
     ("test_questions", "text TEXT"),
+    ("tests", "access_code TEXT"),
+    ("users", "last_reminded_at INTEGER DEFAULT 0"),
+    ("user_activity", "description TEXT NOT NULL DEFAULT ''"),
 ]
 
 
@@ -106,6 +118,14 @@ async def init():
             have = [row[1] for row in await cur.fetchall()]
             if col.split()[0] not in have:
                 await d.execute(f"ALTER TABLE {table} ADD COLUMN {col}")
+        await d.execute(
+            "CREATE INDEX IF NOT EXISTS idx_user_activity_user_time "
+            "ON user_activity(user_id, occurred_at)"
+        )
+        await d.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_tests_access_code "
+            "ON tests(access_code) WHERE access_code IS NOT NULL AND access_code != ''"
+        )
         await d.commit()
 
 
