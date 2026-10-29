@@ -1,1 +1,14 @@
+# Ma'lumotlar bazasi fayllari (serverdagi baza o'chib ketmasligi uchun)
+*.db
+*.sqlite
+*.sqlite3
+database.db
+
+# Maxfiy kalitlar va sozlamalar
+.env
+
+# Virtual muhit va kesh fayllari
+venv/
+__pycache__/
+*.pyc
 
